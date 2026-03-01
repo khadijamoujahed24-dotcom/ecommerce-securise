@@ -9,7 +9,11 @@
         <div>
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            @if ($errors->has('email'))
+               <div class="text-red-600 mt-2" id="throttle-message">
+                   {{ $errors->first('email') }}
+                </div>
+            @endif
         </div>
 
         <!-- Password -->
@@ -21,7 +25,7 @@
                             name="password"
                             required autocomplete="current-password" />
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            
         </div>
 
         <!-- Remember Me -->
@@ -44,4 +48,31 @@
             </x-primary-button>
         </div>
     </form>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+       const message = document.getElementById("throttle-message");
+       if (!message) return;
+       if (message.innerText.includes("seconds")) {
+         const match = message.innerText.match(/(\d+)/);
+         if (!match) return;
+         let seconds = parseInt(match[1]);
+         const button = document.querySelector("button[type=submit]");
+         if (!button) return;
+         button.disabled = true;
+         const interval = setInterval(() => {
+            seconds--;
+
+            message.innerText = "Account locked. Try again in " + seconds + " seconds.";
+
+            if (seconds <= 0) {
+                clearInterval(interval);
+                button.disabled = false;
+                message.innerText = "You can try again now.";
+            }
+
+         }, 1000);
+        }
+    });
+    </script>
 </x-guest-layout>

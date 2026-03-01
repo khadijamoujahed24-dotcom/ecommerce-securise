@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-
+use Illuminate\Support\Facades\Log;
 class LoginRequest extends FormRequest
 {
     /**
@@ -39,9 +39,16 @@ class LoginRequest extends FormRequest
      */
     public function authenticate(): void
     {
+        Log::info('AUTH FUNCTION CALLED');
         $this->ensureIsNotRateLimited();
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+            Log::warning('Login failed', [
+                'email' => $this->input('email'),
+                'ip' => $this->ip(),
+                'user_agent' => $this->userAgent(),
+            ]);
+
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -59,19 +66,28 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 2)) {
             return;
         }
 
         event(new Lockout($this));
+        RateLimiter::clear($this->throttleKey());
+        RateLimiter::hit($this->throttleKey(), 60);
 
-        $seconds = RateLimiter::availableIn($this->throttleKey());
+        $seconds = 60;
+
+        Log::alert('Account locked due to too many login attempts', [
+                'email' => $this->input('email'),
+                'ip' => $this->ip(),
+                'user_agent' => $this->userAgent(),
+            ]);
+
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
-                'seconds' => $seconds,
+            'email' => trans('auth.throttle',[
+                'second' => $seconds,
                 'minutes' => ceil($seconds / 60),
-            ]),
+            ])
         ]);
     }
 
@@ -80,6 +96,7 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return $this->ip();
+
     }
 }
