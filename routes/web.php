@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\OrderController;
 
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -38,3 +37,4 @@ Route::get('/security/xss', function (Request $request) {
 
 // Auth routes (Breeze / Laravel auth)
 require __DIR__.'/auth.php';
+

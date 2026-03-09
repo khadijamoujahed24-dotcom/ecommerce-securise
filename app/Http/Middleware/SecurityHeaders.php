@@ -14,9 +14,12 @@ class SecurityHeaders
 
         // Content Security Policy
         $response->headers->set(
-            'Content-Security-Policy',
-            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; frame-ancestors 'none';"
+             'Content-Security-Policy',
+        
+             "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; frame-ancestors 'none';"
         );
+
+
 
         // Protection contre Clickjacking
         $response->headers->set('X-Frame-Options', 'DENY');
@@ -30,3 +33,6 @@ class SecurityHeaders
         return $response;
     }
 }
+
+
+
