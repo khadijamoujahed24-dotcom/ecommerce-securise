@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -55,32 +55,69 @@ class OrderController extends Controller
 
         return redirect()->route('payment.show', $order->id);
     }
-
-
+    
     public function paymentForm($id)
     {
-       $order = Order::findOrFail($id);
-        // Sécurité: l'utilisateur ne doit voir que ses commandes
-       if ($order->user_id !== auth()->id()) {
-         abort(403);
-       }
+            $order = Order::findOrFail($id);
 
-        return view('orders.payment', compact('order'));
-   }
-       public function pay(Request $request, $id)
-    {
-       $order = Order::findOrFail($id);
-       if ($order->user_id !== auth()->id()) {
-         abort(403);
+            if ($order->user_id !== auth()->id()) {
+                Log::warning('UNAUTHORIZED_PAYMENT_PAGE_ACCESS', [
+                    'actor_id' => auth()->id(),
+                    'order_id' => $id,
+                    'ip'       => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+                abort(403);
+            }
+            return view('orders.payment', compact('order'));
+    }
+
+
+
+
+
+       
+   public function pay(Request $request, $id)
+   {
+        $order = Order::findOrFail($id);
+        if ($order->user_id !== auth()->id()) {
+            Log::warning('UNAUTHORIZED_PAYMENT_ATTEMPT', [
+                'actor_id' => auth()->id(),
+                'order_id' => $id,
+                'ip'       => request()->ip(),
+            ]);
+            abort(403);
         }
         $request->validate([
-          'payment_method' => 'required|in:card,cash,bank'
+           'payment_method' => 'required|in:card,cash,bank'
         ]);
-        $order->update([
-          'payment_method' => $request->payment_method,
-          'status' => 'paid'
-        ]);
-        return redirect()->route('products.index')
-           ->with('success', 'Paiement simulé effectué. Commande validée.');
+        try {
+            Log::notice('PAYMENT_START', [
+                'actor_id'   => auth()->id(),
+                'order_id'   => $id,
+                'method'     => $request->payment_method,
+                'ip'         => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+            $order->update([
+                'payment_method' => $request->payment_method,
+                'status'         => 'paid'
+            ]);
+            Log::notice('PAYMENT_SUCCESS', [
+                'actor_id' => auth()->id(),
+                'order_id' => $id,
+                'ip'       => request()->ip(),
+            ]);
+            return redirect()->route('products.index')
+                 ->with('success', 'Paiement simulé effectué. Commande validée.');
+        } catch (\Throwable $e) {
+            Log::error('PAYMENT_FAILED', [
+                'actor_id' => auth()->id(),
+                'order_id' => $id,
+                'ip'       => request()->ip(),
+                'error'    => $e->getMessage(),
+            ]);
+            throw $e;
+        }
     }
 }  

@@ -1,12 +1,16 @@
 <?php
 
+<<<<<<< HEAD
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
+=======
+>>>>>>> chapitre5-securite-b
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,11 +18,16 @@ use Illuminate\Support\Facades\Auth;
 |--------------------------------------------------------------------------
 */
 
+<<<<<<< HEAD
 // Accueil
+=======
+// Page d'accueil
+>>>>>>> chapitre5-securite-b
 Route::get('/', function () {
     return view('welcome'); // resources/views/welcome.blade.php
 });
 
+<<<<<<< HEAD
 // Dashboard utilisateur
 Route::get('/dashboard', function () {
     return view('dashboard'); // resources/views/dashboard.blade.php
@@ -79,11 +88,34 @@ Route::get('/remove-from-cart/{product}',
 
 Route::get('/payment/{id}', [OrderController::class, 'paymentForm'])
     ->name('payment.show');
+=======
+// Dashboard (protégé)
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth'])->name('dashboard');
+>>>>>>> chapitre5-securite-b
 
+// Paiement commande
 Route::post('/payment/{id}', [OrderController::class, 'pay'])
+    ->middleware(['auth'])
     ->name('payment.pay');
 
+<<<<<<< HEAD
 Route::resource('products', ProductController::class);
 
 
+=======
+/*
+|--------------------------------------------------------------------------
+| SECURITY XSS DEMO ROUTE
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/security/xss', function (Request $request) {
+    return view('security.xss');
+})->middleware('auth');
+
+// Auth routes (Breeze / Laravel auth)
+require __DIR__.'/auth.php';
+>>>>>>> chapitre5-securite-b
 
