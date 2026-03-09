@@ -1,52 +1,53 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-       public function index()
+    // Afficher le panier
+    public function index()
     {
         $cart = session()->get('cart', []);
-        return view('cart.index', compact('cart'));
+        $total = 0;
+
+        foreach ($cart as $item) {
+            $total += $item['price'] * $item['quantity'];
+        }
+
+        return view('client.cart', compact('cart', 'total'));
     }
 
-    public function add($id)
+    // Ajouter un produit au panier
+    public function add(Product $product)
     {
-        $product = Product::findOrFail($id);
-
         $cart = session()->get('cart', []);
 
-        if(isset($cart[$id])) {
-            $cart[$id]['quantity']++;
+        if(isset($cart[$product->id])) {
+            $cart[$product->id]['quantity']++;
         } else {
-            $cart[$id] = [
-                "name" => $product->name,
-                "price" => $product->price,
-                "quantity" => 1
+            $cart[$product->id] = [
+                'name' => $product->name,
+                'price' => $product->price,
+                'quantity' => 1
             ];
         }
 
         session()->put('cart', $cart);
-        return redirect()->back()
-         ->with('success', 'Produit ajouté au panier');
+        return redirect()->back()->with('success', $product->name.' ajouté au panier !');
     }
 
+    // Supprimer un produit du panier
     public function remove(Product $product)
     {
-    $cart = session()->get('cart', []);
+        $cart = session()->get('cart', []);
 
-    if(isset($cart[$product->id])) {
-        unset($cart[$product->id]);
-        session()->put('cart', $cart);
-    }
+        if(isset($cart[$product->id])) {
+            unset($cart[$product->id]);
+            session()->put('cart', $cart);
+        }
 
-    return redirect()->back()
-        ->with('success', 'Produit supprimé du panier');
-    
-    }
-
+        return redirect()->back()->with('success', $product->name.' retiré du panier.');
+  }
 }
-

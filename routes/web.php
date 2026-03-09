@@ -69,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
 
 // Catégories
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 // Sécurité XSS Demo
 Route::get('/security/xss', function (Request $request) {
     return view('security.xss');

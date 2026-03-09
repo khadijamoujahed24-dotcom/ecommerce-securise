@@ -55,5 +55,6 @@ class CategorySeeder extends Seeder
         foreach ($categories as $category) {
             Category::create($category);
         }
+        Category::create(['name' => 'Ordinateurs portables', 'description' => 'PC portables']);
     }
 }
