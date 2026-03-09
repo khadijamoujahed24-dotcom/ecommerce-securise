@@ -4,6 +4,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -38,6 +39,7 @@ require __DIR__.'/auth.php';
 
 Route::resource('products', ProductController::class);
 
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index'); 
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::get('/add-to-cart/{id}', [CartController::class, 'add'])->name('cart.add');
@@ -51,5 +53,8 @@ Route::get('/payment/{id}', [OrderController::class, 'paymentForm'])
 
 Route::post('/payment/{id}', [OrderController::class, 'pay'])
     ->name('payment.pay');
+
+Route::resource('products', ProductController::class);
+
 
 
