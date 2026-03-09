@@ -4,6 +4,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -55,10 +56,34 @@ require __DIR__.'/auth.php';
 Route::get('/catalogue', [ProductController::class, 'index'])->name('products.catalogue'); // resources/views/products/index.blade.php
 Route::get('/product/{id}', [ProductController::class, 'show'])->name('products.show');    // resources/views/products/show.blade.php
 
+
 // Panier
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');                   // resources/views/cart/index.blade.php
+
+Route::resource('products', ProductController::class);
+
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index'); 
+
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+
 Route::get('/add-to-cart/{id}', [CartController::class, 'add'])->name('cart.add');
 Route::get('/remove-from-cart/{product}', [CartController::class, 'remove'])->name('cart.remove');
 
+
 // Resource complète pour produits (CRUD si nécessaire)
 Route::resource('products', ProductController::class);
+
+Route::get('/remove-from-cart/{product}', 
+    [CartController::class, 'remove'])
+    ->name('cart.remove');
+
+Route::get('/payment/{id}', [OrderController::class, 'paymentForm'])
+    ->name('payment.show');
+
+Route::post('/payment/{id}', [OrderController::class, 'pay'])
+    ->name('payment.pay');
+
+Route::resource('products', ProductController::class);
+
+
+
