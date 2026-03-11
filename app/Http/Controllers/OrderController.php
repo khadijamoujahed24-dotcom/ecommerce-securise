@@ -140,4 +140,37 @@ class OrderController extends Controller
             throw $e;
         }
     }
+
+    // Afficher la page de paiement simulé
+    public function payment(Order $order)
+    {
+      // Vérifier que l'utilisateur est bien propriétaire de la commande
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Accès interdit.');
+        }
+
+        return view('client.payment', compact('order'));
+    }
+
+    // Confirmer le paiement simulé
+    public function confirmPayment(Request $request, Order $order)
+    {
+        // Vérifier que l'utilisateur est bien propriétaire de la commande
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Accès interdit.');
+        }
+
+        // Récupérer la méthode de paiement sélectionnée
+        $request->validate([
+            'payment_method' => 'required|string'
+        ]);
+
+        $order->update([
+            'status' => 'paid',              // passage de pending → paid
+            'payment_method' => $request->payment_method
+        ]);
+
+        return redirect()->route('home')->with('success', 'Paiement simulé confirmé !');
+    
+    }
 }

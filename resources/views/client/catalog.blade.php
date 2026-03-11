@@ -1,42 +1,70 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container my-4">
-    <h1 class="mb-4">Catalogue de matériel informatique</h1>
-
-    <!-- filtres par catégorie -->
-    <div class="mb-3">
-        <strong>Catégories : </strong>
-        @foreach($categories as $category)
-            <a href="#" class="btn btn-outline-primary btn-sm mb-1">{{ $category->name }}</a>
-        @endforeach
-    </div>
-
-    <!-- affichage des produits -->
-    <div class="row">
-        @foreach($products as $product)
-        <div class="col-md-3 mb-4">
-            <div class="card h-100">
-                @if($product->image)
-                    <img src="{{ asset('storage/' . $product->image) }}" class="card-img-top" alt="{{ $product->name }}">
-                @else
-                    <img src="{{ asset('images/no-image.png') }}" class="card-img-top" alt="Pas d'image">
-                @endif
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">{{ $product->name }}</h5>
-                    <p class="card-text text-truncate">{{ $product->description }}</p>
-                    <p class="mt-auto"><strong>{{ $product->price }} MAD</strong></p>
-                    <a href="{{ route('cart.add', $product->id) }}" class="btn btn-primary btn-block mt-2">Ajouter au panier</a>
-                    <a href="{{ route('product.show', $product->id) }}" class="btn btn-outline-secondary btn-block mt-1">Voir le produit</a>
-                </div>
-            </div>
+<div class="catalog-page">
+    <div class="container">
+        <div class="catalog-header">
+            <h1 class="catalog-title">Catalogue de matériel informatique</h1>
+            <p class="catalog-subtitle">
+                Parcourez notre sélection de produits informatiques performants, adaptés aux usages professionnels,
+                personnels et gaming.
+            </p>
         </div>
-        @endforeach
-    </div>
 
-    <!-- pagination -->
-    <div class="d-flex justify-content-center mt-4">
-        {{ $products->links() }}
+        <div class="catalog-categories">
+            <div class="catalog-categories-title">Catégories :</div>
+
+            <a href="{{ route('products.catalogue') }}"
+               class="catalog-category-link {{ request('category') ? '' : 'active-category' }}">
+                Tous
+            </a>
+
+            @foreach($categories as $category)
+                <a href="{{ route('products.catalogue', ['category' => $category->id]) }}"
+                   class="catalog-category-link {{ request('category') == $category->id ? 'active-category' : '' }}">
+                    {{ $category->name }}
+                </a>
+            @endforeach
+        </div>
+
+        <div class="row">
+            @forelse($products as $product)
+                <div class="col-md-3 mb-4">
+                    <div class="card catalog-product-card h-100">
+                        <img src="{{ asset('images/products/' . $product->image) }}"
+                             alt="{{ $product->name }}">
+
+                        <div class="catalog-product-body d-flex flex-column">
+                            <h5 class="catalog-product-title">{{ $product->name }}</h5>
+
+                            <p class="catalog-product-description">
+                                {{ $product->description }}
+                            </p>
+
+                            <p class="catalog-product-price mt-auto">
+                                {{ number_format($product->price, 2) }} MAD
+                            </p>
+
+                            <a href="{{ route('cart.add', $product->id) }}" class="btn btn-primary catalog-btn">
+                                Ajouter au panier
+                            </a>
+
+                            <a href="{{ route('products.show', $product->id) }}" class="btn btn-outline-secondary catalog-btn catalog-btn-secondary">
+                                Voir le produit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="col-12 text-center">
+                    <p>Aucun produit trouvé pour cette catégorie.</p>
+                </div>
+            @endforelse
+        </div>
+
+        <div class="d-flex justify-content-center catalog-pagination">
+            {{ $products->links() }}
+        </div>
     </div>
 </div>
 @endsection

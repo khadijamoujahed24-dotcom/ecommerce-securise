@@ -90,16 +90,18 @@ class ProductController extends Controller
     // ---------------------------------------------------
     // Frontend : Afficher catalogue côté client
     // ---------------------------------------------------
-    public function catalog()
+    public function catalog(Request $request)
     {
-        $products = Product::with('category')->paginate(12); // Pagination côté client
-        $categories = Category::all();
-        return view('client.catalog', compact('products', 'categories'));
-    }
+      $categories = Category::all();
 
-    // Frontend : Afficher détail produit
-    public function show(Product $product)
-    {
-        return view('client.show', compact('product'));
-    }
+      $query = Product::with('category');
+
+      if ($request->filled('category')) {
+        $query->where('category_id', $request->category);
+      }
+
+      $products = $query->paginate(12)->withQueryString();
+
+    return view('client.catalog', compact('products', 'categories'));
+   }
 }

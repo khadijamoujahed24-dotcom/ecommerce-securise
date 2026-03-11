@@ -1,130 +1,227 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'TechStore' }}</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
+<title>{{ $title ?? 'TechStore' }}</title>
 
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.4rem;
-        }
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        .hero-section {
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
-            color: white;
-            padding: 80px 0;
-            border-radius: 0 0 20px 20px;
-        }
+<link rel="stylesheet" href="{{ asset('css/home.css') }}">
 
-        .product-card img {
-            height: 220px;
-            object-fit: cover;
-        }
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-        }
-
-        .btn {
-            border-radius: 10px;
-        }
-
-        footer {
-            margin-top: 60px;
-            background: #212529;
-            color: white;
-            padding: 20px 0;
-        }
-
-        .section-title {
-            font-weight: bold;
-            margin-bottom: 25px;
-        }
-    </style>
 </head>
+
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url('/') }}">TechStore</a>
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg custom-navbar">
+    <div class="container">
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+        <a class="navbar-brand custom-brand d-flex align-items-center gap-2" href="{{ route('home') }}">
+           <img src="{{ asset('images/logo.png') }}" width="40">
+            TechStore
+       </a>
 
-            <div class="collapse navbar-collapse" id="mainNavbar">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/') }}">Accueil</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/catalogue') }}">Catalogue</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/cart') }}">Panier</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/checkout') }}">Checkout</a></li>
-                </ul>
+        <button class="navbar-toggler custom-toggler" type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNavbar">
 
-                <div class="d-flex gap-2">
-                    <a href="{{ url('/login') }}" class="btn btn-outline-light btn-sm">Connexion</a>
-                    <a href="{{ url('/register') }}" class="btn btn-primary btn-sm">Inscription</a>
-                </div>
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+
+            <ul class="navbar-nav mx-auto">
+
+                <li class="nav-item">
+                    <a class="nav-link custom-link" href="{{ route('home') }}">
+                        Accueil
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link custom-link" href="{{ route('products.catalogue') }}">
+                        Catalogue
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link custom-link" href="{{ route('cart.index') }}">
+                        Panier
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link custom-link" href="{{ route('checkout') }}">
+                        Checkout
+                    </a>
+                </li>
+
+            </ul>
+
+            <div class="d-flex gap-2">
+
+                @guest
+
+                <a href="{{ route('login') }}" class="btn btn-outline-light nav-btn">
+                    Connexion
+                </a>
+
+                <a href="{{ route('register') }}" class="btn btn-primary nav-btn">
+                    Inscription
+                </a>
+
+                @else
+
+                <a href="{{ route('dashboard') }}" class="btn btn-outline-light nav-btn">
+                    Mon compte
+                </a>
+
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button class="btn btn-primary nav-btn">
+                        Déconnexion
+                    </button>
+                </form>
+
+                @endguest
+
             </div>
+
         </div>
-    </nav>
-
-    <main>
-        @yield('content')
-    </main>
-
-    <footer>
-        <div class="container text-center">
-            <p class="mb-0">© {{ date('Y') }} TechStore - Boutique de matériel informatique</p>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
-
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-        @include('layouts.navigation')
-
-        <!-- Page Heading -->
-        @isset($header)
-            <header class="bg-white dark:bg-gray-800 shadow">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    {{ $header }}
-                </div>
-            </header>
-        @endisset
-
-        <!-- Page Content -->
-        <main>
-            {{ $slot }}
-        </main>
     </div>
+</nav>
+
+
+<!-- CONTENU -->
+<main>
+    @yield('content')
+</main>
+
+
+<!-- FOOTER -->
+<footer class="site-footer">
+
+<div class="container">
+
+<div class="row">
+
+<div class="col-md-4">
+
+<h5 class="footer-brand">
+Boutique Informatique
+</h5>
+
+<p class="footer-text">
+Votre destination pour du matériel informatique fiable,
+moderne et performant.
+</p>
+
+</div>
+
+
+<div class="col-md-4">
+
+<h6 class="footer-title">
+Contact
+</h6>
+
+<p class="footer-text">
++212 6 12 34 56 78
+</p>
+
+<p class="footer-text">
+email@example.com
+</p>
+
+<p class="footer-text">
+Chefchaouen, Maroc
+</p>
+
+</div>
+
+
+<div class="col-md-2">
+
+<h6 class="footer-title">
+Liens utiles
+</h6>
+
+<ul class="footer-list list-unstyled">
+
+<li>
+<a href="{{ route('home') }}" class="footer-link">
+Accueil
+</a>
+</li>
+
+<li>
+<a href="{{ route('products.catalogue') }}" class="footer-link">
+Catalogue
+</a>
+</li>
+
+<li>
+<a href="{{ route('dashboard') }}" class="footer-link">
+Mon compte
+</a>
+</li>
+
+</ul>
+
+</div>
+
+
+<div class="col-md-2">
+
+<h6 class="footer-title">
+Informations
+</h6>
+
+<ul class="footer-list list-unstyled">
+
+<li>
+<a href="#" class="footer-link">
+Politique de confidentialité
+</a>
+</li>
+
+<li>
+<a href="#" class="footer-link">
+Conditions générales
+</a>
+</li>
+
+<li>
+<a href="#" class="footer-link">
+Aide et support
+</a>
+</li>
+
+</ul>
+
+</div>
+
+</div>
+
+
+<hr class="footer-divider">
+
+
+<div class="footer-bottom">
+© {{ date('Y') }} Boutique Informatique.
+Tous droits réservés.
+</div>
+
+</div>
+
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
-

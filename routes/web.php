@@ -7,8 +7,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+
+use App\Models\Category;
+use App\Models\Product;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,61 +18,82 @@ use Illuminate\Http\Request;
 |--------------------------------------------------------------------------
 */
 
-// Page d'accueil publique
 Route::get('/', function () {
-    return view('welcome');
+
+    $categories = Category::all();
+    $featuredProducts = Product::take(4)->get();
+
+    return view('home', compact('categories', 'featuredProducts'));
+
 })->name('home');
 
-// Auth routes (login, register, etc.)
 require __DIR__.'/auth.php';
 
-// Routes publiques pour le catalogue et les produits côté client
+
+/* =========================
+   ROUTES PUBLIQUES
+========================= */
+
 Route::get('/catalogue', [ProductController::class, 'catalog'])->name('products.catalogue');
 Route::get('/product/{product}', [ProductController::class, 'show'])->name('products.show');
 
-// Routes nécessitant authentification
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+
+
+/* =========================
+   ROUTES AUTHENTIFIÉES
+========================= */
+
 Route::middleware(['auth'])->group(function () {
 
-    // Dashboard utilisateur
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
-    // Profil utilisateur
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Panier
+
+    /* PANIER */
+
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::get('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
     Route::get('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/update/{product}', [CartController::class, 'update'])->name('cart.update');
 
-    // Checkout / Confirmer commande
+
+    /* CHECKOUT */
+
     Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
-    Route::post('/confirm-order', [OrderController::class, 'confirm'])->name('order.confirm');
+    Route::post('/order/confirm', [OrderController::class, 'confirm'])->name('order.confirm');
 
-    // Paiement
-    Route::get('/payment/{id}', [OrderController::class, 'paymentForm'])->name('payment.show');
-    Route::post('/payment/{id}', [OrderController::class, 'pay'])->name('payment.pay');
 
-    // Routes admin protégées
+    /* PAIEMENT */
+
+    Route::get('/payment/{order}', [OrderController::class, 'paymentForm'])->name('payment.show');
+    Route::post('/payment/{order}', [OrderController::class, 'pay'])->name('payment.pay');
+    Route::post('/payment/{order}/confirm', [OrderController::class, 'confirmPayment'])->name('payment.confirm');
+
+
+    /* ADMIN */
+
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
 
-        // Dashboard admin
         Route::get('/', function () {
             return view('admin.dashboard');
         })->name('dashboard');
 
-        // CRUD produits pour admin
         Route::resource('products', ProductController::class)->except(['show']);
     });
+
 });
 
-// Catégories
-Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-// Sécurité XSS Demo
+
+/* =========================
+   DEMO SÉCURITÉ
+========================= */
+
 Route::get('/security/xss', function (Request $request) {
     return view('security.xss');
 })->middleware('auth');
