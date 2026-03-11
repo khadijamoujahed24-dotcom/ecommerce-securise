@@ -7,7 +7,7 @@
             <div class="card p-4">
                 <h2 class="text-center mb-4">Connexion</h2>
 
-<<<<<<< HEAD
+
                 <form method="POST" action="#">
                     @csrf
 
@@ -33,7 +33,7 @@
     </div>
 </div>
 @endsection
-=======
+
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="__('Email')" />
@@ -80,4 +80,4 @@
     </form>
     <script src="{{ asset('js/login-lock.js') }}"></script>
 </x-guest-layout>
->>>>>>> chapitre5-securite-b
+
