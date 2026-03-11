@@ -14,25 +14,19 @@ class SecurityHeaders
 
         // Content Security Policy
         $response->headers->set(
-             'Content-Security-Policy',
-        
-             "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; frame-ancestors 'none';"
+            'Content-Security-Policy',
+            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net data:; img-src 'self' data: https:; connect-src 'self';"
         );
 
+        // X-Frame-Options
+        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
 
-
-        // Protection contre Clickjacking
-        $response->headers->set('X-Frame-Options', 'DENY');
-
-        // Protection MIME sniffing
+        // X-Content-Type-Options
         $response->headers->set('X-Content-Type-Options', 'nosniff');
 
-        // Protection XSS (ancienne compatibilité)
-        $response->headers->set('X-XSS-Protection', '1; mode=block');
+        // Referrer-Policy
+        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
         return $response;
     }
 }
-
-
-
