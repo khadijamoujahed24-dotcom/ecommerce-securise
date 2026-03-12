@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -11,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
+    // Page checkout
     public function checkout()
     {
         $cart = session()->get('cart', []);
@@ -23,6 +23,7 @@ class OrderController extends Controller
         return view('orders.checkout', compact('cart'));
     }
 
+    // Confirmer la commande
     public function confirm()
     {
         $cart = session()->get('cart', []);
@@ -31,93 +32,145 @@ class OrderController extends Controller
                 ->with('error', 'Votre panier est vide.');
         }
 
-         //  Étape calcul du total
+        // Étape calcul du total
         $total = 0;
         foreach ($cart as $item) {
             $total += $item['price'] * $item['quantity'];
         }
 
+        // Utilisateur connecté
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         // Création de la commande
         $order = Order::create([
-            'user_id' => auth()->id(),
+            'user_id' => $user->id,
             'total'   => $total,
             'status'  => 'pending'
         ]);
+
+        // Création des items de la commande
         foreach ($cart as $id => $details) {
             OrderItem::create([
-                'order_id'  => $order->id,
-                'product_id'=> $id,
-                'quantity'  => $details['quantity'],
-                'price'     => $details['price']
+                'order_id'   => $order->id,
+                'product_id' => $id,
+                'quantity'   => $details['quantity'],
+                'price'      => $details['price']
             ]);
         }
+
         session()->forget('cart');
 
         return redirect()->route('payment.show', $order->id);
     }
-    
+
+    // Formulaire paiement
     public function paymentForm($id)
     {
-            $order = Order::findOrFail($id);
+        $order = Order::findOrFail($id);
 
-            if ($order->user_id !== auth()->id()) {
-                Log::warning('UNAUTHORIZED_PAYMENT_PAGE_ACCESS', [
-                    'actor_id' => auth()->id(),
-                    'order_id' => $id,
-                    'ip'       => request()->ip(),
-                    'user_agent' => request()->userAgent(),
-                ]);
-                abort(403);
-            }
-            return view('orders.payment', compact('order'));
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($order->user_id !== $user->id) {
+            Log::warning('UNAUTHORIZED_PAYMENT_PAGE_ACCESS', [
+                'actor_id'   => $user->id,
+                'order_id'   => $id,
+                'ip'         => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+            abort(403);
+        }
+
+        return view('orders.payment', compact('order'));
     }
 
-
-
-
-
-       
-   public function pay(Request $request, $id)
-   {
+    // Effectuer le paiement
+    public function pay(Request $request, $id)
+    {
         $order = Order::findOrFail($id);
-        if ($order->user_id !== auth()->id()) {
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($order->user_id !== $user->id) {
             Log::warning('UNAUTHORIZED_PAYMENT_ATTEMPT', [
-                'actor_id' => auth()->id(),
+                'actor_id' => $user->id,
                 'order_id' => $id,
                 'ip'       => request()->ip(),
             ]);
             abort(403);
         }
+
         $request->validate([
-           'payment_method' => 'required|in:card,cash,bank'
+            'payment_method' => 'required|in:card,cash,bank'
         ]);
+
         try {
             Log::notice('PAYMENT_START', [
-                'actor_id'   => auth()->id(),
+                'actor_id'   => $user->id,
                 'order_id'   => $id,
                 'method'     => $request->payment_method,
                 'ip'         => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ]);
+
             $order->update([
                 'payment_method' => $request->payment_method,
                 'status'         => 'paid'
             ]);
+
             Log::notice('PAYMENT_SUCCESS', [
-                'actor_id' => auth()->id(),
+                'actor_id' => $user->id,
                 'order_id' => $id,
                 'ip'       => request()->ip(),
             ]);
+
             return redirect()->route('products.index')
                  ->with('success', 'Paiement simulé effectué. Commande validée.');
+
         } catch (\Throwable $e) {
             Log::error('PAYMENT_FAILED', [
-                'actor_id' => auth()->id(),
+                'actor_id' => $user->id,
                 'order_id' => $id,
                 'ip'       => request()->ip(),
                 'error'    => $e->getMessage(),
             ]);
+
             throw $e;
         }
     }
-}  
+
+    // Afficher la page de paiement simulé
+    public function payment(Order $order)
+    {
+      // Vérifier que l'utilisateur est bien propriétaire de la commande
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Accès interdit.');
+        }
+
+        return view('client.payment', compact('order'));
+    }
+
+    // Confirmer le paiement simulé
+    public function confirmPayment(Request $request, Order $order)
+    {
+        // Vérifier que l'utilisateur est bien propriétaire de la commande
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Accès interdit.');
+        }
+
+        // Récupérer la méthode de paiement sélectionnée
+        $request->validate([
+            'payment_method' => 'required|string'
+        ]);
+
+        $order->update([
+            'status' => 'paid',              // passage de pending → paid
+            'payment_method' => $request->payment_method
+        ]);
+
+        return redirect()->route('home')->with('success', 'Paiement simulé confirmé !');
+    
+    }
+}
