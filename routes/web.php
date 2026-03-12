@@ -1,16 +1,16 @@
 <?php
 
+<<<<<<< HEAD
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
-
+=======
+>>>>>>> chapitre5-securite-b
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-
-use App\Models\Category;
-use App\Models\Product;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,82 +18,104 @@ use App\Models\Product;
 |--------------------------------------------------------------------------
 */
 
+<<<<<<< HEAD
+// Accueil
+=======
+// Page d'accueil
+>>>>>>> chapitre5-securite-b
 Route::get('/', function () {
+    return view('welcome'); // resources/views/welcome.blade.php
+});
 
-    $categories = Category::all();
-    $featuredProducts = Product::take(4)->get();
+<<<<<<< HEAD
+// Dashboard utilisateur
+Route::get('/dashboard', function () {
+    return view('dashboard'); // resources/views/dashboard.blade.php
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-    return view('home', compact('categories', 'featuredProducts'));
-
-})->name('home');
-
-require __DIR__.'/auth.php';
-
-
-/* =========================
-   ROUTES PUBLIQUES
-========================= */
-
-Route::get('/catalogue', [ProductController::class, 'catalog'])->name('products.catalogue');
-Route::get('/product/{product}', [ProductController::class, 'show'])->name('products.show');
-
-Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-
-
-/* =========================
-   ROUTES AUTHENTIFIÉES
-========================= */
-
-Route::middleware(['auth'])->group(function () {
-
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-
+// Routes nécessitant authentification
+Route::middleware('auth')->group(function () {
+    
+    // Profil utilisateur
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-
-    /* PANIER */
-
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::get('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
-    Route::get('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::post('/cart/update/{product}', [CartController::class, 'update'])->name('cart.update');
-
-
-    /* CHECKOUT */
-
+    
+    // Checkout / Confirmer commande
     Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
-    Route::post('/order/confirm', [OrderController::class, 'confirm'])->name('order.confirm');
+    Route::post('/confirm-order', [OrderController::class, 'confirm'])->name('order.confirm');
 
+    // Paiement
+    Route::get('/payment/{id}', [OrderController::class, 'paymentForm'])->name('payment.show');
+    Route::post('/payment/{id}', [OrderController::class, 'pay'])->name('payment.pay');
 
-    /* PAIEMENT */
-
-    Route::get('/payment/{order}', [OrderController::class, 'paymentForm'])->name('payment.show');
-    Route::post('/payment/{order}', [OrderController::class, 'pay'])->name('payment.pay');
-    Route::post('/payment/{order}/confirm', [OrderController::class, 'confirmPayment'])->name('payment.confirm');
-
-
-    /* ADMIN */
-
-    Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
-
-        Route::get('/', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
-
-        Route::resource('products', ProductController::class)->except(['show']);
-    });
-
+    // Dashboard admin
+    Route::get('/admin', function () {
+        if(!Auth::check() || Auth::user()?->role !== 'admin') {
+            abort(403);
+        }
+        return view('admin.dashboard'); // resources/views/admin/dashboard.blade.php
+    })->name('admin.dashboard');
 });
 
+// Auth routes (login, register, etc.)
+require __DIR__.'/auth.php';
 
-/* =========================
-   DEMO SÉCURITÉ
-========================= */
+// Catalogue et produits
+Route::get('/catalogue', [ProductController::class, 'index'])->name('products.catalogue'); // resources/views/products/index.blade.php
+Route::get('/product/{id}', [ProductController::class, 'show'])->name('products.show');    // resources/views/products/show.blade.php
+
+
+// Panier
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');                   // resources/views/cart/index.blade.php
+
+Route::resource('products', ProductController::class);
+
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index'); 
+
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+
+Route::get('/add-to-cart/{id}', [CartController::class, 'add'])->name('cart.add');
+Route::get('/remove-from-cart/{product}', [CartController::class, 'remove'])->name('cart.remove');
+
+
+// Resource complète pour produits (CRUD si nécessaire)
+Route::resource('products', ProductController::class);
+
+Route::get('/remove-from-cart/{product}', 
+    [CartController::class, 'remove'])
+    ->name('cart.remove');
+
+Route::get('/payment/{id}', [OrderController::class, 'paymentForm'])
+    ->name('payment.show');
+=======
+// Dashboard (protégé)
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth'])->name('dashboard');
+>>>>>>> chapitre5-securite-b
+
+// Paiement commande
+Route::post('/payment/{id}', [OrderController::class, 'pay'])
+    ->middleware(['auth'])
+    ->name('payment.pay');
+
+<<<<<<< HEAD
+Route::resource('products', ProductController::class);
+
+
+=======
+/*
+|--------------------------------------------------------------------------
+| SECURITY XSS DEMO ROUTE
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/security/xss', function (Request $request) {
     return view('security.xss');
 })->middleware('auth');
+
+// Auth routes (Breeze / Laravel auth)
+require __DIR__.'/auth.php';
+>>>>>>> chapitre5-securite-b
+

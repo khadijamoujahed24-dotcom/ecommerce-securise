@@ -4,7 +4,6 @@
 <div class="container my-5">
     <h1 class="mb-4">Tableau de bord administrateur</h1>
 
-    <!-- Statistiques rapides -->
     <div class="row g-4 mb-4">
         <div class="col-md-3">
             <div class="card p-4 text-center">
@@ -32,12 +31,11 @@
         </div>
     </div>
 
-    <!-- Dernières commandes -->
     <div class="card p-4">
         <h4 class="mb-3">Dernières commandes</h4>
         <div class="table-responsive">
             <table class="table table-bordered align-middle">
-                <thead class="table-light">
+                <thead>
                     <tr>
                         <th>ID</th>
                         <th>Client</th>
@@ -68,54 +66,8 @@
                         <td>650 DH</td>
                         <td><span class="badge bg-primary">En préparation</span></td>
                     </tr>
-                    <tr>
-                        <td>#004</td>
-                        <td>Fatima</td>
-                        <td>Disque SSD 1TB</td>
-                        <td>900 DH</td>
-                        <td><span class="badge bg-danger">Annulée</span></td>
-                    </tr>
-                    <tr>
-                        <td>#005</td>
-                        <td>Ali</td>
-                        <td>Routeur Wi-Fi</td>
-                        <td>450 DH</td>
-                        <td><span class="badge bg-success">Payée</span></td>
-                    </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <!-- Liens rapides -->
-    <div class="row mt-4 g-4">
-        <div class="col-md-3">
-            <a href="{{ route('products.index') }}" class="text-decoration-none">
-                <div class="card p-3 text-center">
-                    <h5>Gérer les produits</h5>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a href="{{ route('orders.index') }}" class="text-decoration-none">
-                <div class="card p-3 text-center">
-                    <h5>Gérer les commandes</h5>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a href="{{ route('categories.index') }}" class="text-decoration-none">
-                <div class="card p-3 text-center">
-                    <h5>Gérer les catégories</h5>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a href="{{ route('users.index') }}" class="text-decoration-none">
-                <div class="card p-3 text-center">
-                    <h5>Gérer les utilisateurs</h5>
-                </div>
-            </a>
         </div>
     </div>
 </div>

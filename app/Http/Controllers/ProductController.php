@@ -3,105 +3,79 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\Category;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    // ---------------------------------------------------
-    // Admin : Afficher liste des produits
-    // ---------------------------------------------------
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        // Récupérer les produits avec leur catégorie, 10 par page
-        $products = Product::with('category')->paginate(10);
-
-        // Retourner la vue admin.products.index
-        return view('admin.products.index', compact('products'));
+         $products = Product::all();
+    return view('products.index', compact('products'));
     }
 
-    // ---------------------------------------------------
-    // Admin : Formulaire ajout produit
-    // ---------------------------------------------------
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
-        $categories = Category::all(); // Liste des catégories
-        return view('admin.products.create', compact('categories'));
+        return view('products.create');
     }
 
-    // ---------------------------------------------------
-    // Admin : Stocker nouveau produit
-    // ---------------------------------------------------
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
-        // Validation des champs
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric',
-            'stock' => 'required|integer',
-            'category_id' => 'required|exists:categories,id',
-        ]);
-
-        // Création du produit
-        Product::create($request->all());
-
-        return redirect()->route('admin.products.index')->with('success', 'Produit ajouté avec succès.');
+         'name' => 'required',
+         'price' => 'required|numeric',
+         'stock' => 'required|integer'
+    ]);
+         Product::create($request->all());
+         return redirect()->route('products.index');
     }
 
-    // ---------------------------------------------------
-    // Admin : Formulaire modification produit
-    // ---------------------------------------------------
+    /**
+     * Display the specified resource.
+     */
+    public function show(Product $product)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(Product $product)
     {
-        $categories = Category::all();
-        return view('admin.products.edit', compact('product', 'categories'));
+        return view('products.edit', compact('product'));
     }
 
-    // ---------------------------------------------------
-    // Admin : Mise à jour produit
-    // ---------------------------------------------------
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, Product $product)
     {
-        // Validation des champs
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric',
-            'stock' => 'required|integer',
-            'category_id' => 'required|exists:categories,id',
-        ]);
-
-        // Mise à jour
+         $request->validate([
+          'name' => 'required',
+          'price' => 'required|numeric',
+          'stock' => 'required|integer'
+    ]);
         $product->update($request->all());
-
-        return redirect()->route('admin.products.index')->with('success', 'Produit modifié avec succès.');
+        return redirect()->route('products.index')
+            ->with('success', 'Produit modifié avec succès.');
     }
 
-    // ---------------------------------------------------
-    // Admin : Supprimer produit
-    // ---------------------------------------------------
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy(Product $product)
     {
         $product->delete();
-        return redirect()->route('admin.products.index')->with('success', 'Produit supprimé avec succès.');
+        return redirect()->route('products.index')
+            ->with('success', 'Produit supprimé avec succès.');
     }
-
-    // ---------------------------------------------------
-    // Frontend : Afficher catalogue côté client
-    // ---------------------------------------------------
-    public function catalog(Request $request)
-    {
-      $categories = Category::all();
-
-      $query = Product::with('category');
-
-      if ($request->filled('category')) {
-        $query->where('category_id', $request->category);
-      }
-
-      $products = $query->paginate(12)->withQueryString();
-
-    return view('client.catalog', compact('products', 'categories'));
-   }
 }
