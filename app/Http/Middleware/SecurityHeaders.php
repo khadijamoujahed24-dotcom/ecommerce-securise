@@ -15,7 +15,7 @@ class SecurityHeaders
         // Content Security Policy
         $response->headers->set(
             'Content-Security-Policy',
-            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net data:; img-src 'self' data: https:; connect-src 'self';"
+            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
         );
 
         // X-Frame-Options

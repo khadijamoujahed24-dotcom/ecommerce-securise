@@ -21,7 +21,7 @@ use App\Models\Product;
 Route::get('/', function () {
 
     $categories = Category::all();
-    $featuredProducts = Product::take(4)->get();
+    $featuredProducts = Product::take(8)->get();
 
     return view('home', compact('categories', 'featuredProducts'));
 
@@ -39,6 +39,9 @@ Route::get('/product/{product}', [ProductController::class, 'show'])->name('prod
 
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 
+Route::get('/categories/{id}', function ($id) {
+    return "Catégorie ID : " . $id;
+})->name('categories.show');
 
 /* =========================
    ROUTES AUTHENTIFIÉES
