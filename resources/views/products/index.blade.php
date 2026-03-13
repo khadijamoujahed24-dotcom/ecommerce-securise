@@ -2,39 +2,59 @@
 
 @section('content')
 <div class="container my-5">
-    <h1 class="mb-4">Catalogue des produits</h1>
+    <div class="catalogue-header text-center mb-5">
+        <h1 class="catalogue-title">Catalogue de matériel informatique</h1>
+        <p class="catalogue-subtitle">
+            Parcourez notre sélection de produits informatiques performants, adaptés aux usages
+            professionnels, personnels et gaming.
+        </p>
+    </div>
 
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <select class="form-select">
-                <option selected>Choisir une catégorie</option>
-                <option>Ordinateurs portables</option>
-                <option>PC Bureau</option>
-                <option>Composants</option>
-                <option>Écrans</option>
-                <option>Accessoires</option>
-            </select>
-        </div>
+    <div class="catalogue-toolbar">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Catégorie</label>
+                <select class="form-select custom-filter">
+                    <option selected>Toutes les catégories</option>
+                    <option>Ordinateurs portables</option>
+                    <option>PC Bureau</option>
+                    <option>Composants</option>
+                    <option>Écrans</option>
+                    <option>Accessoires</option>
+                </select>
+            </div>
 
-        <div class="col-md-6">
-            <input type="text" class="form-control" placeholder="Rechercher un produit...">
-        </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Recherche</label>
+                <input type="text" class="form-control custom-filter" placeholder="Rechercher un produit...">
+            </div>
 
-        <div class="col-md-3">
-            <button class="btn btn-primary w-100">Filtrer</button>
+            <div class="col-md-3">
+                <button class="btn btn-primary w-100 filter-btn">Filtrer</button>
+            </div>
         </div>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4 mt-1">
         @for ($i = 1; $i <= 8; $i++)
-            <div class="col-md-3">
-                <div class="card product-card h-100">
-                    <img src="https://via.placeholder.com/300x220" class="card-img-top" alt="Produit">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">Produit {{ $i }}</h5>
-                        <p class="card-text text-muted">Produit informatique de qualité, idéal pour les utilisateurs exigeants.</p>
-                        <p class="fw-bold text-primary mt-auto">1 299 DH</p>
-                        <a href="{{ url('/product/1') }}" class="btn btn-outline-primary mt-2">Voir plus</a>
+            <div class="col-sm-6 col-lg-3">
+                <div class="catalogue-product-card h-100">
+                    <div class="catalogue-product-media">
+                        <img src="https://via.placeholder.com/300x220" alt="Produit {{ $i }}">
+                    </div>
+
+                    <div class="catalogue-product-body d-flex flex-column">
+                        <h5 class="catalogue-product-title">Produit {{ $i }}</h5>
+                        <p class="catalogue-product-desc">
+                            Produit informatique de qualité, idéal pour les utilisateurs exigeants.
+                        </p>
+
+                        <div class="mt-auto">
+                            <div class="catalogue-product-price">1 299 DH</div>
+                            <a href="{{ url('/product/1') }}" class="btn btn-outline-primary w-100 mt-2">
+                                Voir plus
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
