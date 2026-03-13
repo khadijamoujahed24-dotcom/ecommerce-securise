@@ -7,20 +7,44 @@
                 <div class="card p-4">
                     <h2 class="text-center mb-4">Connexion</h2>
 
-                    <form method="POST" action="{{ route('login') }}">
-                        @csrf
+<<<<<<< HEAD
+                <form method="POST" action="#">
+                    @csrf
 
-                        <!-- Email Address -->
-                        <div class="mb-3">
-                            <x-input-label for="email" :value="__('Email')" />
-                            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email"
-                                          :value="old('email')" required autofocus autocomplete="username" />
-                            @if ($errors->has('email'))
-                                <div class="text-red-600 mt-2" id="throttle-message">
-                                    {{ $errors->first('email') }}
-                                </div>
-                            @endif
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">Adresse email</label>
+                        <input type="email" class="form-control" placeholder="Entrez votre email">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Mot de passe</label>
+                        <input type="password" class="form-control" placeholder="Entrez votre mot de passe">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+                </form>
+
+                <p class="text-center mt-3">
+                    Pas encore de compte ?
+                    <a href="{{ url('/register') }}">S’inscrire</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+=======
+        <!-- Email Address -->
+        <div>
+            <x-input-label for="email" :value="__('Email')" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+           @if ($errors->has('email'))
+               <div class="text-red-600 mt-2" id="throttle-message">
+                   {{ $errors->first('email') }}
+                </div>
+            @endif
+
+        </div>
 
                         <!-- Password -->
                         <div class="mb-3">
@@ -71,3 +95,4 @@
     <!-- Supprimer ou commenter si login-lock.js n'existe pas -->
     {{-- <script src="{{ asset('js/login-lock.js') }}"></script> --}}
 </x-guest-layout>
+>>>>>>> chapitre5-securite-b
