@@ -12,19 +12,13 @@ class SecurityHeaders
     {
         $response = $next($request);
 
-        // Content Security Policy
         $response->headers->set(
             'Content-Security-Policy',
-            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net data:; img-src 'self' data: https:; connect-src 'self';"
+            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173 https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' http://localhost:5173 https://cdn.jsdelivr.net https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net https://cdn.jsdelivr.net data:; img-src 'self' data: blob:;"
         );
 
-        // X-Frame-Options
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
-
-        // X-Content-Type-Options
         $response->headers->set('X-Content-Type-Options', 'nosniff');
-
-        // Referrer-Policy
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
         return $response;

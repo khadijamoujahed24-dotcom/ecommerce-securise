@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+
     {{-- HERO --}}
     <section class="home-hero">
         <div class="container">
@@ -9,7 +10,12 @@
                     <span class="hero-badge">Performance • Fiabilité • Innovation</span>
 
                     <div class="mb-3">
-                        <img src="{{ asset('images/hero.png') }}" alt="Logo Boutique Informatique" class="hero-logo">
+                        <img
+                            src="{{ asset('images/logo.png') }}"
+                            alt="Logo Boutique Informatique"
+                            class="hero-logo"
+                            onerror="this.style.display='none'"
+                        >
                     </div>
 
                     <h1 class="hero-title">
@@ -22,13 +28,17 @@
                     </p>
 
                     <div class="hero-actions">
-                        <a href="{{ route('products.catalogue') }}" class="btn btn-primary btn-lg px-4">
-                            Voir les produits
-                        </a>
+                        @if(Route::has('products.catalogue'))
+                            <a href="{{ route('products.catalogue') }}" class="btn btn-primary btn-lg px-4">
+                                Voir les produits
+                            </a>
+                        @endif
 
-                        <a href="{{ route('categories.index') }}" class="btn btn-outline-light btn-lg px-4">
-                            Explorer les catégories
-                        </a>
+                        @if(Route::has('categories.index'))
+                            <a href="{{ route('categories.index') }}" class="btn btn-outline-light btn-lg px-4">
+                                Explorer les catégories
+                            </a>
+                        @endif
                     </div>
 
                     <div class="hero-stats">
@@ -49,7 +59,12 @@
 
                 <div class="col-lg-5">
                     <div class="hero-visual">
-                        <img src="{{ asset('images/banner.jpg') }}" alt="Matériel informatique" class="img-fluid rounded-4 shadow-lg">
+                        <img
+                            src="{{ asset('images/banner.jpg') }}"
+                            alt="Matériel informatique"
+                            class="img-fluid rounded-4 shadow-lg"
+                            onerror="this.style.display='none'"
+                        >
                     </div>
                 </div>
             </div>
@@ -68,12 +83,16 @@
             </div>
 
             <div class="row g-4">
-                @foreach($categories->take(6) as $category)
+                @forelse($categories->take(6) as $category)
                     <div class="col-md-6 col-lg-4">
                         <div class="category-card h-100 position-relative">
                             <div class="category-media">
-                                <img src="{{ asset('images/categories/' . $category->id . '.jpg') }}"
-                                     alt="{{ $category->name }}">
+                                <img
+                                    src="{{ asset('images/categories/' . $category->id . '.jpg') }}"
+                                    alt="{{ $category->name }}"
+                                    data-fallback="{{ asset('images/categories/default.jpg') }}"
+                                    class="fallback-image"
+                                >
                             </div>
 
                             <div class="category-body">
@@ -81,13 +100,22 @@
                                 <p>
                                     {{ $category->description ?? 'Découvrez les produits de cette catégorie et accédez rapidement aux références les plus recherchées.' }}
                                 </p>
-                                <a href="{{ route('products.catalogue', ['category' => $category->id]) }}" class="stretched-link text-decoration-none">
-                                    <span class="visually-hidden">Voir la catégorie {{ $category->name }}</span>
-                                </a>
+
+                                @if(Route::has('categories.show'))
+                                    <a href="{{ route('categories.show', $category->id) }}" class="stretched-link text-decoration-none">
+                                        <span class="visually-hidden">Voir la catégorie {{ $category->name }}</span>
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            Aucune catégorie n’est disponible pour le moment.
+                        </div>
+                    </div>
+                @endforelse
             </div>
         </div>
     </section>
@@ -104,19 +132,23 @@
             </div>
 
             <div class="row g-4">
-                @foreach($featuredProducts as $product)
+                @forelse($featuredProducts as $product)
                     <div class="col-sm-6 col-lg-3">
                         <div class="product-card h-100">
                             <div class="product-media">
-                                <img src="{{ asset('images/products/' . $product->image) }}"
-                                     alt="{{ $product->name }}">
+                                <img
+                                    src="{{ asset('images/products/' . $product->image) }}"
+                                    alt="{{ $product->name }}"
+                                    data-fallback="{{ asset('images/products/default.jpg') }}"
+                                    class="fallback-image"
+                                >
                             </div>
 
                             <div class="product-body d-flex flex-column">
                                 <h5 class="product-title">{{ $product->name }}</h5>
 
                                 <p class="product-desc">
-                                    {{ \Illuminate\Support\Str::limit($product->description, 90) }}
+                                    {{ \Illuminate\Support\Str::limit($product->description ?? 'Aucune description disponible.', 90) }}
                                 </p>
 
                                 <div class="product-meta mt-auto">
@@ -125,25 +157,38 @@
                                     </div>
 
                                     <div class="d-grid gap-2">
-                                        <a href="{{ route('cart.add', $product->id) }}" class="btn btn-primary">
-                                            Ajouter au panier
-                                        </a>
-                                        <a href="{{ route('products.show', $product->id) }}" class="btn btn-outline-secondary">
-                                            Voir le produit
-                                        </a>
+                                        @if(Route::has('cart.add'))
+                                            <a href="{{ route('cart.add', $product->id) }}" class="btn btn-primary">
+                                                Ajouter au panier
+                                            </a>
+                                        @endif
+
+                                        @if(Route::has('products.show'))
+                                            <a href="{{ route('products.show', $product->id) }}" class="btn btn-outline-secondary">
+                                                Voir le produit
+                                            </a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            Aucun produit vedette n’est disponible pour le moment.
+                        </div>
+                    </div>
+                @endforelse
             </div>
 
-            <div class="text-center mt-4">
-                <a href="{{ route('products.catalogue') }}" class="btn btn-dark px-4">
-                    Voir tout le catalogue
-                </a>
-            </div>
+            @if(Route::has('products.catalogue'))
+                <div class="text-center mt-4">
+                    <a href="{{ route('products.catalogue') }}" class="btn btn-dark px-4">
+                        Voir tout le catalogue
+                    </a>
+                </div>
+            @endif
         </div>
     </section>
 
@@ -201,4 +246,18 @@
             </div>
         </div>
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.fallback-image').forEach(function (img) {
+                img.addEventListener('error', function () {
+                    const fallback = img.getAttribute('data-fallback');
+                    if (fallback && img.src !== fallback) {
+                        img.src = fallback;
+                    }
+                });
+            });
+        });
+    </script>
+
 @endsection
