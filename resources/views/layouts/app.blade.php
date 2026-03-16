@@ -14,8 +14,8 @@
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-navbar shadow-sm">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{{ route('home') }}">
-                <img src="{{ asset('images/logo.png') }}" alt="Logo TechStore" class="navbar-logo">
+            <a class="navbar-brand d-flex align-items-center gap-3 fw-bold" href="{{ route('home') }}">
+                <img src="{{ asset('images/hero.png') }}" alt="Logo TechStore" class="navbar-logo-full">
                 <span>TechStore</span>
             </a>
 
@@ -52,16 +52,17 @@
 
                 <div class="d-flex gap-2">
                     @guest
-                        <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm px-3">
+                        <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm px-3">
                             Connexion
                         </a>
+
                         <a href="{{ route('register') }}" class="btn btn-primary btn-sm px-3">
                             Inscription
                         </a>
                     @endguest
 
                     @auth
-                        <a href="{{ route('dashboard') }}" class="btn btn-outline-light btn-sm px-3">
+                        <a href="{{ route('dashboard') }}" class="btn btn-primary btn-sm px-3">
                             Mon compte
                         </a>
 
@@ -81,10 +82,46 @@
     <main>
         @yield('content')
     </main>
+
+    <!-- FOOTER -->
     <footer class="site-footer">
-    <div class="container text-center">
-        <p>© {{ date('Y') }} TechStore - Boutique de matériel informatique</p>
-    </div>
+        <div class="container">
+            <div class="row text-center text-md-start gy-4">
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3">TechStore</h5>
+                    <p class="mb-2">
+                        Votre boutique de matériel informatique fiable, moderne et performante.
+                    </p>
+                    <p class="mb-0">© {{ date('Y') }} TechStore - Tous droits réservés.</p>
+                </div>
+
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3">Contact</h5>
+                    <p class="mb-2">
+                        <i class="bi bi-telephone-fill me-2"></i>+212 6 12 34 56 78
+                    </p>
+                    <p class="mb-2">
+                        <i class="bi bi-envelope-fill me-2"></i>contact@techstore.ma
+                    </p>
+                    <p class="mb-0">
+                        <i class="bi bi-geo-alt-fill me-2"></i>Fès, Maroc
+                    </p>
+                </div>
+
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3">Liens utiles</h5>
+                    <p class="mb-2">
+                        <a href="{{ route('home') }}" class="footer-link">Accueil</a>
+                    </p>
+                    <p class="mb-2">
+                        <a href="{{ route('products.catalogue') }}" class="footer-link">Catalogue</a>
+                    </p>
+                    <p class="mb-0">
+                        <a href="{{ route('categories.index') }}" class="footer-link">Catégories</a>
+                    </p>
+                </div>
+            </div>
+        </div>
     </footer>
 
     <!-- SCRIPTS -->

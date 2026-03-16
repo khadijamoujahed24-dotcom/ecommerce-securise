@@ -39,10 +39,7 @@ Route::get('/product/{product}', [ProductController::class, 'show'])->name('prod
 
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 
-Route::get('/categories/{id}', function ($id) {
-    return "Catégorie ID : " . $id;
-})->name('categories.show');
-
+Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
 /* =========================
    ROUTES AUTHENTIFIÉES
 ========================= */

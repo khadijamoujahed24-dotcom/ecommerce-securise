@@ -29,10 +29,22 @@
 
         <div class="row">
             @forelse($products as $product)
-                <div class="col-md-3 mb-4">
+                <div class="col-sm-6 col-lg-3 mb-4">
                     <div class="card catalog-product-card h-100">
-                        <img src="{{ asset('images/products/' . $product->image) }}"
-                             alt="{{ $product->name }}">
+                        <div class="catalog-product-media">
+                            <div class="catalog-product-media-inner">
+                               @php
+                                  $productImage = asset('images/products/' . ($product->image ?? 'default.jpg'));
+                                  $productFallback = asset('images/products/default.jpg');
+                               @endphp
+
+                               <img
+                                  src="{{ $productImage }}"
+                                  alt="{{ $product->name }}"
+                                  onerror="this.onerror=null; this.src='{{ $productFallback }}';"
+                                >
+                            </div>
+                        </div>
 
                         <div class="catalog-product-body d-flex flex-column">
                             <h5 class="catalog-product-title">{{ $product->name }}</h5>

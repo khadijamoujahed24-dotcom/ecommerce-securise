@@ -87,11 +87,15 @@
                     <div class="col-md-6 col-lg-4">
                         <div class="category-card h-100 position-relative">
                             <div class="category-media">
+                                @php
+                                    $categoryImage = asset('images/categories/' . ($category->image ?? 'default.jpg'));
+                                    $categoryFallback = asset('images/categories/default.jpg');
+                                @endphp
+
                                 <img
-                                    src="{{ asset('images/categories/' . $category->id . '.jpg') }}"
+                                    src="{{ $categoryImage }}"
                                     alt="{{ $category->name }}"
-                                    data-fallback="{{ asset('images/categories/default.jpg') }}"
-                                    class="fallback-image"
+                                    onerror="this.onerror=null; this.src='{{ $categoryFallback }}';"
                                 >
                             </div>
 
@@ -134,42 +138,42 @@
             <div class="row g-4">
                 @forelse($featuredProducts as $product)
                     <div class="col-sm-6 col-lg-3">
-                        <div class="product-card h-100">
-                            <div class="product-media">
+                        <div class="card catalog-product-card h-100">
+                            <div class="catalog-product-media">
+                                @php
+                                    $productImage = asset('images/products/' . ($product->image ?? 'default.jpg'));
+                                    $productFallback = asset('images/products/default.jpg');
+                                @endphp
+
                                 <img
-                                    src="{{ asset('images/products/' . $product->image) }}"
+                                    src="{{ $productImage }}"
                                     alt="{{ $product->name }}"
-                                    data-fallback="{{ asset('images/products/default.jpg') }}"
-                                    class="fallback-image"
+                                    onerror="this.onerror=null; this.src='{{ $productFallback }}';"
                                 >
                             </div>
 
-                            <div class="product-body d-flex flex-column">
-                                <h5 class="product-title">{{ $product->name }}</h5>
+                            <div class="catalog-product-body d-flex flex-column">
+                                <h5 class="catalog-product-title">{{ $product->name }}</h5>
 
-                                <p class="product-desc">
+                                <p class="catalog-product-description">
                                     {{ \Illuminate\Support\Str::limit($product->description ?? 'Aucune description disponible.', 90) }}
                                 </p>
 
-                                <div class="product-meta mt-auto">
-                                    <div class="product-price">
-                                        {{ number_format($product->price, 2) }} MAD
-                                    </div>
+                                <p class="catalog-product-price mt-auto">
+                                    {{ number_format($product->price, 2) }} MAD
+                                </p>
 
-                                    <div class="d-grid gap-2">
-                                        @if(Route::has('cart.add'))
-                                            <a href="{{ route('cart.add', $product->id) }}" class="btn btn-primary">
-                                                Ajouter au panier
-                                            </a>
-                                        @endif
+                                @if(Route::has('cart.add'))
+                                    <a href="{{ route('cart.add', $product->id) }}" class="btn btn-primary catalog-btn">
+                                        Ajouter au panier
+                                    </a>
+                                @endif
 
-                                        @if(Route::has('products.show'))
-                                            <a href="{{ route('products.show', $product->id) }}" class="btn btn-outline-secondary">
-                                                Voir le produit
-                                            </a>
-                                        @endif
-                                    </div>
-                                </div>
+                                @if(Route::has('products.show'))
+                                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-outline-secondary catalog-btn catalog-btn-secondary">
+                                        Voir le produit
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -246,18 +250,5 @@
             </div>
         </div>
     </section>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.fallback-image').forEach(function (img) {
-                img.addEventListener('error', function () {
-                    const fallback = img.getAttribute('data-fallback');
-                    if (fallback && img.src !== fallback) {
-                        img.src = fallback;
-                    }
-                });
-            });
-        });
-    </script>
 
 @endsection

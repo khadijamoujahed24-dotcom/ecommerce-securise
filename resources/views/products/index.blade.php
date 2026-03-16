@@ -2,12 +2,26 @@
 
 @section('content')
 <div class="container my-5">
+
     <div class="catalogue-header text-center mb-5">
         <h1 class="catalogue-title">Catalogue de matériel informatique</h1>
         <p class="catalogue-subtitle">
-            Parcourez notre sélection de produits informatiques performants, adaptés aux usages
-            professionnels, personnels et gaming.
+            Parcourez notre sélection de produits informatiques performants, adaptés aux usages professionnels, personnels et gaming.
         </p>
+    </div>
+
+    <div class="catalogue-categories-box">
+        <h5 class="catalogue-categories-title">Catégories</h5>
+
+        <div class="catalogue-categories-list">
+            <a href="{{ route('products.catalogue') }}" class="category-chip active">Tous</a>
+
+            @foreach($categories as $category)
+                <a href="{{ route('categories.show', $category->id) }}" class="category-chip">
+                    {{ $category->name }}
+                </a>
+            @endforeach
+        </div>
     </div>
 
     <div class="catalogue-toolbar">
@@ -60,5 +74,6 @@
             </div>
         @endfor
     </div>
+
 </div>
 @endsection
