@@ -5,10 +5,9 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
-
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-
 use App\Models\Category;
 use App\Models\Product;
 
@@ -19,22 +18,20 @@ use App\Models\Product;
 */
 
 Route::get('/', function () {
-
     $categories = Category::all();
     $featuredProducts = Product::take(8)->get();
 
-    return view('home', compact('categories', 'featuredProducts'));
-
+    return view('welcome', compact('categories', 'featuredProducts'));
 })->name('home');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 
 /* =========================
    ROUTES PUBLIQUES
 ========================= */
 
-Route::get('/catalogue', [ProductController::class, 'catalog'])->name('products.catalogue');
+Route::get('/catalogue', [ProductController::class, 'index'])->name('products.catalogue');
 Route::get('/product/{product}', [ProductController::class, 'show'])->name('products.show');
 
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
@@ -60,6 +57,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::get('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
     Route::get('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
+
+    // استعملي هاد route غير إلا كانت method update موجودة فعلاً فـ CartController
     Route::post('/cart/update/{product}', [CartController::class, 'update'])->name('cart.update');
 
 
@@ -73,20 +72,20 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/payment/{order}', [OrderController::class, 'paymentForm'])->name('payment.show');
     Route::post('/payment/{order}', [OrderController::class, 'pay'])->name('payment.pay');
+
+    // استعملي هاد route غير إلا كانت method confirmPayment موجودة فعلاً فـ OrderController
     Route::post('/payment/{order}/confirm', [OrderController::class, 'confirmPayment'])->name('payment.confirm');
 
 
     /* ADMIN */
 
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
-
         Route::get('/', function () {
             return view('admin.dashboard');
         })->name('dashboard');
 
         Route::resource('products', ProductController::class)->except(['show']);
     });
-
 });
 
 
