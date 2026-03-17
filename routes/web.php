@@ -21,7 +21,7 @@ Route::get('/', function () {
     $categories = Category::all();
     $featuredProducts = Product::take(8)->get();
 
-    return view('welcome', compact('categories', 'featuredProducts'));
+    return view('home', compact('categories', 'featuredProducts'));
 })->name('home');
 
 require __DIR__ . '/auth.php';
