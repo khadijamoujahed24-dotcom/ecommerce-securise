@@ -7,7 +7,6 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AdminUserController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Product;
@@ -74,10 +73,11 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('products', ProductController::class)->except(['show']);
 
         Route::get('/payments/{order}', [OrderController::class, 'adminPaymentShow'])->name('payments.show');
+
         Route::get('/orders', [OrderController::class, 'adminOrders'])->name('orders.index');
         Route::get('/orders/{order}', [OrderController::class, 'adminOrderShow'])->name('orders.show');
-        Route::get('/orders', [OrderController::class, 'adminOrders'])->name('orders.index');
         Route::post('/orders/{order}/status', [OrderController::class, 'adminUpdateStatus'])->name('orders.updateStatus');
+
         Route::get('/order/{order}/confirmation', [OrderController::class, 'confirmation'])
             ->name('order.confirmation');
 
@@ -94,4 +94,4 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/security/xss', function (Request $request) {
     return view('security.xss');
-})->middleware('auth');
+})->middleware('auth')->name('security.xss');
