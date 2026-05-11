@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -16,7 +16,8 @@ class OrderController extends Controller
         $cart = session()->get('cart', []);
 
         if (empty($cart)) {
-            return redirect()->route('cart.index')
+            return redirect()
+                ->route('cart.index')
                 ->with('error', 'Votre panier est vide.');
         }
 
@@ -27,35 +28,33 @@ class OrderController extends Controller
     public function confirm()
     {
         $cart = session()->get('cart', []);
+
         if (empty($cart)) {
-            return redirect()->route('cart.index')
+            return redirect()
+                ->route('cart.index')
                 ->with('error', 'Votre panier est vide.');
         }
 
-        // Étape calcul du total
         $total = 0;
         foreach ($cart as $item) {
             $total += $item['price'] * $item['quantity'];
         }
 
-        // Utilisateur connecté
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Création de la commande
         $order = Order::create([
             'user_id' => $user->id,
-            'total'   => $total,
-            'status'  => 'pending'
+            'total' => $total,
+            'status' => 'pending',
         ]);
 
-        // Création des items de la commande
         foreach ($cart as $id => $details) {
             OrderItem::create([
-                'order_id'   => $order->id,
+                'order_id' => $order->id,
                 'product_id' => $id,
-                'quantity'   => $details['quantity'],
-                'price'      => $details['price']
+                'quantity' => $details['quantity'],
+                'price' => $details['price'],
             ]);
         }
 
@@ -64,7 +63,7 @@ class OrderController extends Controller
         return redirect()->route('payment.show', $order->id);
     }
 
-    // Formulaire paiement
+    // Formulaire paiement client
     public function paymentForm($id)
     {
         $order = Order::findOrFail($id);
@@ -74,18 +73,19 @@ class OrderController extends Controller
 
         if ($order->user_id !== $user->id) {
             Log::warning('UNAUTHORIZED_PAYMENT_PAGE_ACCESS', [
-                'actor_id'   => $user->id,
-                'order_id'   => $id,
-                'ip'         => request()->ip(),
+                'actor_id' => $user->id,
+                'order_id' => $id,
+                'ip' => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ]);
-            abort(403);
+
+            abort(403, 'Accès interdit.');
         }
 
         return view('orders.payment', compact('order'));
     }
 
-    // Effectuer le paiement
+    // Validation du mode de paiement sans Stripe
     public function pay(Request $request, $id)
     {
         $order = Order::findOrFail($id);
@@ -97,80 +97,133 @@ class OrderController extends Controller
             Log::warning('UNAUTHORIZED_PAYMENT_ATTEMPT', [
                 'actor_id' => $user->id,
                 'order_id' => $id,
-                'ip'       => request()->ip(),
+                'ip' => request()->ip(),
             ]);
-            abort(403);
+
+            abort(403, 'Accès interdit.');
+        }
+
+        if ($order->status === 'paid') {
+            return redirect()
+                ->route('payment.show', $order->id)
+                ->with('error', 'Cette commande est déjà payée.');
         }
 
         $request->validate([
-            'payment_method' => 'required|in:card,cash,bank'
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:50',
+            'address' => 'required|string|max:255',
+            'city' => 'required|string|max:100',
+            'payment_method' => 'required|in:cash,bank',
+            'bank_reference' => 'nullable|string|max:255',
+            'payment_note' => 'nullable|string|max:1000',
         ]);
-
+        if ($request->payment_method === 'bank' && empty($request->bank_reference)) {
+             return redirect()
+                   ->back()
+                   ->withInput()
+                   ->withErrors([
+                      'bank_reference' => 'La référence de virement est obligatoire.'
+                    ]);
+        }            
         try {
-            Log::notice('PAYMENT_START', [
-                'actor_id'   => $user->id,
-                'order_id'   => $id,
-                'method'     => $request->payment_method,
-                'ip'         => request()->ip(),
+            Log::notice('OFFLINE_PAYMENT_SELECTED', [
+                'actor_id' => $user->id,
+                'order_id' => $id,
+                'method' => $request->payment_method,
+                'ip' => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ]);
 
             $order->update([
+                'full_name' => $request->full_name,
+                'email' => $user->email,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'city' => $request->city,
                 'payment_method' => $request->payment_method,
-                'status'         => 'paid'
+                'bank_reference' => $request->bank_reference,
+                'payment_note' => $request->payment_note,
+                'status' => 'awaiting_confirmation',
             ]);
 
-            Log::notice('PAYMENT_SUCCESS', [
-                'actor_id' => $user->id,
-                'order_id' => $id,
-                'ip'       => request()->ip(),
-            ]);
-
-            return redirect()->route('products.index')
-                 ->with('success', 'Paiement simulé effectué. Commande validée.');
-
+            return redirect()
+               ->route('order.confirmation', $order->id)
+               ->with('success', 'Votre commande a été enregistrée avec succès.');
         } catch (\Throwable $e) {
-            Log::error('PAYMENT_FAILED', [
+            Log::error('OFFLINE_PAYMENT_FAILED', [
                 'actor_id' => $user->id,
                 'order_id' => $id,
-                'ip'       => request()->ip(),
-                'error'    => $e->getMessage(),
+                'ip' => request()->ip(),
+                'error' => $e->getMessage(),
             ]);
 
-            throw $e;
+            return redirect()
+                ->route('payment.show', $order->id)
+                ->with('error', 'Erreur lors de l’enregistrement du mode de paiement.');
         }
     }
-
-    // Afficher la page de paiement simulé
-    public function payment(Order $order)
+    
+    public function confirmation($id)
     {
-      // Vérifier que l'utilisateur est bien propriétaire de la commande
-        if ($order->user_id !== Auth::id()) {
-            abort(403, 'Accès interdit.');
-        }
+      $order = Order::findOrFail($id);
 
-        return view('client.payment', compact('order'));
+      /** @var \App\Models\User $user */
+      $user = Auth::user();
+
+      if ($order->user_id !== $user->id) {
+         abort(403, 'Accès interdit.');
+       }
+
+      return view('orders.confirmation', compact('order'));
+    }
+    
+    public function adminOrders()
+    {
+         $orders = Order::with('user')->latest()->paginate(10);
+         return view('admin.orders.index', compact('orders'));
     }
 
-    // Confirmer le paiement simulé
-    public function confirmPayment(Request $request, Order $order)
+    public function adminOrderShow($id)
     {
-        // Vérifier que l'utilisateur est bien propriétaire de la commande
-        if ($order->user_id !== Auth::id()) {
-            abort(403, 'Accès interdit.');
-        }
+       $order = Order::with('items.product')->findOrFail($id);
 
-        // Récupérer la méthode de paiement sélectionnée
-        $request->validate([
-            'payment_method' => 'required|string'
+      return view('admin.orders.show', compact('order'));
+    }
+
+    public function adminUpdateStatus(Request $request, $id)
+    {
+       $order = Order::findOrFail($id);
+ 
+       $request->validate([
+          'status' => 'required|in:pending,awaiting_confirmation,paid,cancelled',
         ]);
 
         $order->update([
-            'status' => 'paid',              // passage de pending → paid
-            'payment_method' => $request->payment_method
+          'status' => $request->status,
         ]);
 
-        return redirect()->route('home')->with('success', 'Paiement simulé confirmé !');
-    
+        return redirect()
+          ->route('admin.orders.show', $order->id)
+          ->with('success', 'Statut de la commande mis à jour avec succès.');
     }
+    public function adminDashboard()
+    {
+       $latestOrders = Order::latest()->take(5)->get();
+
+       $productsCount = \App\Models\Product::count();
+       $ordersCount = Order::count();
+       $clientsCount = \App\Models\User::where('role', 'client')->count();
+       $revenues = Order::where('status', 'paid')->sum('total');
+
+        return view('admin.dashboard', compact(
+          'latestOrders',
+          'productsCount',
+          'ordersCount',
+          'clientsCount',
+          'revenues'
+        ));
+    }
+
 }

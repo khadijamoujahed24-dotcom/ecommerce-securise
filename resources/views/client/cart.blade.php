@@ -27,10 +27,10 @@
                     <td>{{ $item['name'] }}</td>
                     <td>{{ $item['price'] }} MAD</td>
                     <td>
-                        <form action="{{ route('cart.update', $id) }}" method="POST" style="display:flex;">
+                        <form action="{{ route('cart.update', $id) }}" method="POST" style="display:flex; gap:8px; align-items:center;">
                             @csrf
                             <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="1" class="form-control" style="width:80px;">
-                            <button type="submit" class="btn btn-sm btn-primary ml-2">Modifier</button>
+                            <button type="submit" class="btn btn-sm btn-primary">Modifier</button>
                         </form>
                     </td>
                     <td>{{ $item['price'] * $item['quantity'] }} MAD</td>
@@ -46,10 +46,9 @@
             </tbody>
         </table>
 
-        <form action="{{ route('order.confirm') }}" method="POST">
-            @csrf
-            <button type="submit" class="btn btn-success">Valider la commande</button>
-        </form>
+        <a href="{{ route('checkout') }}" class="btn btn-success">
+            Passer au checkout
+        </a>
     @endif
 </div>
 @endsection

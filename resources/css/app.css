@@ -565,3 +565,13 @@ main {
 .footer-link:hover {
     color: #60a5fa;
 }
+
+.catalog-pagination svg {
+    width: 18px !important;
+    height: 18px !important;
+    vertical-align: middle;
+}
+
+.catalog-pagination .pagination {
+    gap: 4px;
+}

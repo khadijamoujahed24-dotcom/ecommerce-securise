@@ -10,7 +10,7 @@ class CartController extends Controller
     // Afficher le panier
     public function index()
     {
-        $cart = session()->get('cart', []); // récupérer le panier depuis la session
+        $cart = session()->get('cart', []);
         $total = 0;
 
         foreach ($cart as $item) {
@@ -25,8 +25,8 @@ class CartController extends Controller
     {
         $cart = session()->get('cart', []);
 
-        if(isset($cart[$product->id])) {
-            $cart[$product->id]['quantity'] += 1; // si déjà présent, incrémente la quantité
+        if (isset($cart[$product->id])) {
+            $cart[$product->id]['quantity'] += 1;
         } else {
             $cart[$product->id] = [
                 'name' => $product->name,
@@ -37,7 +37,7 @@ class CartController extends Controller
 
         session()->put('cart', $cart);
 
-        return redirect()->back()->with('success', $product->name.' ajouté au panier !');
+        return redirect()->back()->with('success', $product->name . ' ajouté au panier !');
     }
 
     // Supprimer un produit du panier
@@ -45,12 +45,12 @@ class CartController extends Controller
     {
         $cart = session()->get('cart', []);
 
-        if(isset($cart[$product->id])) {
-            unset($cart[$product->id]); // supprimer le produit
+        if (isset($cart[$product->id])) {
+            unset($cart[$product->id]);
             session()->put('cart', $cart);
         }
 
-        return redirect()->back()->with('success', $product->name.' retiré du panier.');
+        return redirect()->back()->with('success', $product->name . ' retiré du panier.');
     }
 
     // Mettre à jour la quantité d’un produit
@@ -58,13 +58,15 @@ class CartController extends Controller
     {
         $cart = session()->get('cart', []);
 
-        if(isset($cart[$product->id])) {
-            $quantity = $request->input('quantity');
-            if($quantity > 0){
+        if (isset($cart[$product->id])) {
+            $quantity = (int) $request->input('quantity');
+
+            if ($quantity > 0) {
                 $cart[$product->id]['quantity'] = $quantity;
             } else {
-                unset($cart[$product->id]); // supprime si quantité <= 0
+                unset($cart[$product->id]);
             }
+
             session()->put('cart', $cart);
         }
 

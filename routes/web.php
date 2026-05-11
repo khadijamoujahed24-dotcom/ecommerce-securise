@@ -5,6 +5,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\AdminUserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -26,17 +27,16 @@ Route::get('/', function () {
 
 require __DIR__ . '/auth.php';
 
-
 /* =========================
    ROUTES PUBLIQUES
 ========================= */
 
-Route::get('/catalogue', [ProductController::class, 'index'])->name('products.catalogue');
+Route::get('/catalogue', [ProductController::class, 'catalog'])->name('products.catalogue');
 Route::get('/product/{product}', [ProductController::class, 'show'])->name('products.show');
 
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-
 Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
+
 /* =========================
    ROUTES AUTHENTIFIÉES
 ========================= */
@@ -51,43 +51,42 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-
     /* PANIER */
-
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::get('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
     Route::get('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
-
-    // استعملي هاد route غير إلا كانت method update موجودة فعلاً فـ CartController
     Route::post('/cart/update/{product}', [CartController::class, 'update'])->name('cart.update');
 
-
     /* CHECKOUT */
-
     Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
     Route::post('/order/confirm', [OrderController::class, 'confirm'])->name('order.confirm');
 
-
-    /* PAIEMENT */
-
+    /* PAIEMENT CLIENT */
     Route::get('/payment/{order}', [OrderController::class, 'paymentForm'])->name('payment.show');
     Route::post('/payment/{order}', [OrderController::class, 'pay'])->name('payment.pay');
-
-    // استعملي هاد route غير إلا كانت method confirmPayment موجودة فعلاً فـ OrderController
-    Route::post('/payment/{order}/confirm', [OrderController::class, 'confirmPayment'])->name('payment.confirm');
-
+    Route::get('/order/{order}/confirmation', [OrderController::class, 'confirmation'])->name('order.confirmation');
 
     /* ADMIN */
-
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+
+        Route::get('/', [OrderController::class, 'adminDashboard'])->name('dashboard');
 
         Route::resource('products', ProductController::class)->except(['show']);
+
+        Route::get('/payments/{order}', [OrderController::class, 'adminPaymentShow'])->name('payments.show');
+        Route::get('/orders', [OrderController::class, 'adminOrders'])->name('orders.index');
+        Route::get('/orders/{order}', [OrderController::class, 'adminOrderShow'])->name('orders.show');
+        Route::get('/orders', [OrderController::class, 'adminOrders'])->name('orders.index');
+        Route::post('/orders/{order}/status', [OrderController::class, 'adminUpdateStatus'])->name('orders.updateStatus');
+        Route::get('/order/{order}/confirmation', [OrderController::class, 'confirmation'])
+            ->name('order.confirmation');
+
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
+        Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
     });
 });
-
 
 /* =========================
    DEMO SÉCURITÉ

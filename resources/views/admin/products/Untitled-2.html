@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maquettes - Plateforme de supervision des switches</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      background: #eef3f8;
+      color: #1f2937;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: #0f2f57;
+      color: white;
+      padding: 24px 18px;
+      position: fixed;
+      height: 100vh;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .logo-box {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 10px;
+      background: #ffffff;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0f2f57;
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+    .logo h2 {
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .menu a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      padding: 13px 14px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      background: rgba(255,255,255,0.08);
+      font-size: 15px;
+    }
+
+    .menu a:hover,
+    .menu a.active {
+      background: #1d72b8;
+    }
+
+    .main {
+      margin-left: 250px;
+      width: calc(100% - 250px);
+      padding: 26px;
+    }
+
+    .header {
+      background: white;
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 22px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      color: #0f2f57;
+      font-size: 24px;
+    }
+
+    .header p {
+      color: #6b7280;
+      margin-top: 5px;
+    }
+
+    .badge {
+      background: #e6f3ff;
+      color: #0f2f57;
+      padding: 10px 15px;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    .card h3 {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 12px;
+    }
+
+    .card .number {
+      font-size: 32px;
+      font-weight: bold;
+      color: #0f2f57;
+    }
+
+    .status-ok { color: #16803c; font-weight: bold; }
+    .status-warning { color: #d97706; font-weight: bold; }
+    .status-danger { color: #dc2626; font-weight: bold; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 18px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    .panel h2 {
+      font-size: 19px;
+      color: #0f2f57;
+      margin-bottom: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 13px 10px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    th {
+      background: #f3f6fa;
+      color: #0f2f57;
+    }
+
+    .btn {
+      border: none;
+      padding: 10px 14px;
+      border-radius: 9px;
+      background: #1d72b8;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn.secondary {
+      background: #e5e7eb;
+      color: #1f2937;
+    }
+
+    .filters {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    input, select {
+      padding: 11px;
+      border: 1px solid #d1d5db;
+      border-radius: 9px;
+      width: 100%;
+    }
+
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(120deg, #0f2f57, #1d72b8);
+    }
+
+    .login-box {
+      background: white;
+      width: 430px;
+      border-radius: 22px;
+      padding: 34px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    }
+
+    .login-box h1 {
+      color: #0f2f57;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .login-box p {
+      color: #6b7280;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: bold;
+      color: #374151;
+    }
+
+    .login-box button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 13px;
+      border-radius: 10px;
+      border: none;
+      background: #0f2f57;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .ports-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 8px;
+    }
+
+    .port {
+      height: 36px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .up { background: #16a34a; }
+    .down { background: #dc2626; }
+    .disabled { background: #6b7280; }
+
+    .log-critical {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .log-info {
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .log-warning {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    @media print {
+      .sidebar { display: none; }
+      .main { margin-left: 0; width: 100%; }
+      .section { display: block; page-break-after: always; }
+      .header { margin-top: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PAGE DE CONNEXION -->
+  <section id="login" class="login-page section active">
+    <div class="login-box">
+      <h1>Plateforme de Supervision</h1>
+      <p>Supervision des switches - Aéroport Fès-Saïss</p>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" placeholder="admin@aeroport.local" />
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" placeholder="••••••••" />
+      </div>
+      <button onclick="showSection('dashboard')">Se connecter</button>
+    </div>
+  </section>
+
+  <!-- APPLICATION -->
+  <div id="app" class="app" style="display:none;">
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-box">AM</div>
+        <h2>Airports of Morocco<br />Supervision Réseau</h2>
+      </div>
+      <nav class="menu">
+        <a href="#" class="active" onclick="showSection('dashboard')">Tableau de bord</a>
+        <a href="#" onclick="showSection('switches')">Switches</a>
+        <a href="#" onclick="showSection('logs')">Logs Syslog</a>
+        <a href="#" onclick="showSection('alerts')">Alertes</a>
+        <a href="#" onclick="showSection('users')">Utilisateurs</a>
+        <a href="#" onclick="showSection('login')">Déconnexion</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <!-- DASHBOARD -->
+      <section id="dashboard" class="section">
+        <div class="header">
+          <div>
+            <h1>Tableau de bord de supervision</h1>
+            <p>Vue globale de l’état des switches et des événements réseau.</p>
+          </div>
+          <span class="badge">Dernière mise à jour : 10:35</span>
+        </div>
+
+        <div class="cards">
+          <div class="card"><h3>Switches supervisés</h3><div class="number">12</div></div>
+          <div class="card"><h3>Switches actifs</h3><div class="number status-ok">11</div></div>
+          <div class="card"><h3>Alertes ouvertes</h3><div class="number status-warning">4</div></div>
+          <div class="card"><h3>Ports Down</h3><div class="number status-danger">7</div></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <h2>État récent des switches</h2>
+            <table>
+              <tr><th>Nom</th><th>IP</th><th>Zone</th><th>Statut</th><th>Uptime</th></tr>
+              <tr><td>SW-ADMIN-01</td><td>192.168.10.2</td><td>Administration</td><td class="status-ok">Actif</td><td>12j 04h</td></tr>
+              <tr><td>SW-SEC-01</td><td>192.168.20.2</td><td>Sécurité</td><td class="status-ok">Actif</td><td>8j 18h</td></tr>
+              <tr><td>SW-EXP-01</td><td>192.168.30.2</td><td>Exploitation</td><td class="status-warning">Dégradé</td><td>3j 02h</td></tr>
+              <tr><td>SW-WIFI-01</td><td>192.168.50.2</td><td>Passagers</td><td class="status-danger">Inaccessible</td><td>-</td></tr>
+            </table>
+          </div>
+          <div class="panel">
+            <h2>Dernières alertes</h2>
+            <p><span class="status-danger">Critique</span> : Switch Wi-Fi inaccessible</p><br />
+            <p><span class="status-warning">Moyenne</span> : Port Gi0/12 Down</p><br />
+            <p><span class="status-ok">Info</span> : Collecte SNMP réussie</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SWITCHES -->
+      <section id="switches" class="section">
+        <div class="header">
+          <div>
+            <h1>Inventaire des switches</h1>
+            <p>Gestion centralisée des switches réels intégrés dans le périmètre.</p>
+          </div>
+          <button class="btn">Ajouter un switch</button>
+        </div>
+
+        <div class="panel">
+          <div class="filters">
+            <input placeholder="Rechercher par nom, IP ou zone" />
+            <select><option>Tous les statuts</option><option>Actif</option><option>Inaccessible</option></select>
+          </div>
+          <table>
+            <tr><th>Nom</th><th>Adresse IP</th><th>Modèle</th><th>Zone</th><th>Statut</th><th>Action</th></tr>
+            <tr><td>SW-ADMIN-01</td><td>192.168.10.2</td><td>Cisco Catalyst</td><td>Administration</td><td class="status-ok">Actif</td><td><button class="btn secondary">Détails</button></td></tr>
+            <tr><td>SW-SEC-01</td><td>192.168.20.2</td><td>HP Aruba</td><td>Sécurité</td><td class="status-ok">Actif</td><td><button class="btn secondary">Détails</button></td></tr>
+            <tr><td>SW-EXP-01</td><td>192.168.30.2</td><td>Cisco Catalyst</td><td>Exploitation</td><td class="status-warning">Dégradé</td><td><button class="btn secondary">Détails</button></td></tr>
+          </table>
+        </div>
+
+        <div class="panel">
+          <h2>État des interfaces - SW-ADMIN-01</h2>
+          <div class="ports-grid">
+            <div class="port up">1</div><div class="port up">2</div><div class="port down">3</div><div class="port up">4</div>
+            <div class="port up">5</div><div class="port disabled">6</div><div class="port up">7</div><div class="port up">8</div>
+            <div class="port down">9</div><div class="port up">10</div><div class="port up">11</div><div class="port up">12</div>
+            <div class="port up">13</div><div class="port up">14</div><div class="port disabled">15</div><div class="port up">16</div>
+            <div class="port up">17</div><div class="port down">18</div><div class="port up">19</div><div class="port up">20</div>
+            <div class="port up">21</div><div class="port up">22</div><div class="port up">23</div><div class="port up">24</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LOGS -->
+      <section id="logs" class="section">
+        <div class="header">
+          <div>
+            <h1>Journaux Syslog</h1>
+            <p>Centralisation et consultation des événements envoyés par les switches.</p>
+          </div>
+          <button class="btn">Exporter</button>
+        </div>
+
+        <div class="panel">
+          <div class="filters">
+            <input placeholder="Rechercher dans les logs" />
+            <select><option>Tous les niveaux</option><option>Info</option><option>Warning</option><option>Critical</option></select>
+          </div>
+          <table>
+            <tr><th>Date</th><th>Switch</th><th>Niveau</th><th>Message</th></tr>
+            <tr><td>2026-04-24 10:21</td><td>SW-ADMIN-01</td><td><span class="log-info">INFO</span></td><td>Interface Gi0/2 changed state to up</td></tr>
+            <tr><td>2026-04-24 10:18</td><td>SW-EXP-01</td><td><span class="log-warning">WARNING</span></td><td>High traffic detected on interface Gi0/12</td></tr>
+            <tr><td>2026-04-24 10:10</td><td>SW-WIFI-01</td><td><span class="log-critical">CRITICAL</span></td><td>Device unreachable</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- ALERTES -->
+      <section id="alerts" class="section">
+        <div class="header">
+          <div>
+            <h1>Gestion des alertes</h1>
+            <p>Suivi des anomalies détectées par SNMP ou reçues via Syslog.</p>
+          </div>
+          <span class="badge">4 alertes ouvertes</span>
+        </div>
+
+        <div class="panel">
+          <table>
+            <tr><th>Date</th><th>Équipement</th><th>Type</th><th>Criticité</th><th>Statut</th><th>Action</th></tr>
+            <tr><td>10:10</td><td>SW-WIFI-01</td><td>Switch inaccessible</td><td class="status-danger">Critique</td><td>Ouverte</td><td><button class="btn secondary">Traiter</button></td></tr>
+            <tr><td>10:18</td><td>SW-EXP-01</td><td>Trafic élevé</td><td class="status-warning">Moyenne</td><td>En cours</td><td><button class="btn secondary">Voir</button></td></tr>
+            <tr><td>09:55</td><td>SW-ADMIN-01</td><td>Port Down</td><td class="status-warning">Moyenne</td><td>Ouverte</td><td><button class="btn secondary">Traiter</button></td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- USERS -->
+      <section id="users" class="section">
+        <div class="header">
+          <div>
+            <h1>Gestion des utilisateurs</h1>
+            <p>Maquette de gestion des comptes et des rôles.</p>
+          </div>
+          <button class="btn">Nouvel utilisateur</button>
+        </div>
+        <div class="panel">
+          <table>
+            <tr><th>Nom</th><th>Email</th><th>Rôle</th><th>Statut</th></tr>
+            <tr><td>Administrateur réseau</td><td>admin@aeroport.local</td><td>Admin</td><td class="status-ok">Actif</td></tr>
+            <tr><td>Technicien SI</td><td>tech@aeroport.local</td><td>Technicien</td><td class="status-ok">Actif</td></tr>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function showSection(id) {
+      const login = document.getElementById('login');
+      const app = document.getElementById('app');
+      const sections = document.querySelectorAll('.section');
+      sections.forEach(section => section.classList.remove('active'));
+
+      if (id === 'login') {
+        app.style.display = 'none';
+        login.classList.add('active');
+        return;
+      }
+
+      login.classList.remove('active');
+      app.style.display = 'flex';
+      document.getElementById(id).classList.add('active');
+
+      document.querySelectorAll('.menu a').forEach(a => a.classList.remove('active'));
+      const menuItems = document.querySelectorAll('.menu a');
+      menuItems.forEach(a => {
+        if (a.textContent.toLowerCase().includes(id === 'dashboard' ? 'tableau' : id === 'switches' ? 'switches' : id === 'logs' ? 'logs' : id === 'alerts' ? 'alertes' : 'utilisateurs')) {
+          a.classList.add('active');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

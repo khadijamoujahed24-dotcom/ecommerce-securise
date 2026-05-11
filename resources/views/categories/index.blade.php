@@ -27,6 +27,11 @@
         font-size: 1rem;
     }
 
+    .category-link {
+        text-decoration: none;
+        display: block;
+    }
+
     .category-box {
         background: #ffffff;
         border: none;
@@ -91,17 +96,19 @@
         <div class="row g-4">
             @foreach($categories as $category)
                 <div class="col-md-4 col-lg-3">
-                    <div class="category-box">
-                        <div class="category-icon">
-                            <i class="bi bi-grid"></i>
+                    <a href="{{ route('categories.show', $category->id) }}" class="category-link">
+                        <div class="category-box">
+                            <div class="category-icon">
+                                <i class="bi bi-grid"></i>
+                            </div>
+
+                            <div class="category-name">{{ $category->name }}</div>
+
+                            <p class="category-text">
+                                {{ $category->description ?? 'Découvrez les produits disponibles dans cette catégorie.' }}
+                            </p>
                         </div>
-
-                        <div class="category-name">{{ $category->name }}</div>
-
-                        <p class="category-text">
-                            {{ $category->description ?? 'Découvrez les produits disponibles dans cette catégorie.' }}
-                        </p>
-                    </div>
+                    </a>
                 </div>
             @endforeach
         </div>

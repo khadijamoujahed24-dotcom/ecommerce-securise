@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
     <h1>Liste des produits</h1>
-    <a href="{{ route('products.create') }}" class="btn btn-success mb-3">Ajouter un produit</a>
+    <a href="{{ route('admin.products.create') }}" class="btn btn-success mb-3">Ajouter un produit</a>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -27,8 +27,8 @@
                 <td>{{ $product->price }} MAD</td>
                 <td>{{ $product->stock }}</td>
                 <td>
-                    <a href="{{ route('products.edit', $product) }}" class="btn btn-primary btn-sm">Modifier</a>
-                    <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline">
+                    <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-primary btn-sm">Modifier</a>
+                    <form action="{{ route('admin.products.destroy', $product) }}" method="POST" style="display:inline">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer ce produit ?')">Supprimer</button>

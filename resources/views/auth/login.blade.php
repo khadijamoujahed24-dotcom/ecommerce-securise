@@ -22,7 +22,7 @@
                             id="email"
                             type="email"
                             name="email"
-                            class="form-control"
+                            class="form-control @error('email') is-invalid @enderror"
                             value="{{ old('email') }}"
                             placeholder="Entrez votre email"
                             required
@@ -30,7 +30,9 @@
                             autocomplete="username"
                         >
                         @error('email')
-                            <div class="text-danger mt-2">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">
+                                {{ $message }}
+                            </div>
                         @enderror
                     </div>
 
@@ -40,13 +42,15 @@
                             id="password"
                             type="password"
                             name="password"
-                            class="form-control"
+                            class="form-control @error('password') is-invalid @enderror"
                             placeholder="Entrez votre mot de passe"
                             required
                             autocomplete="current-password"
                         >
                         @error('password')
-                            <div class="text-danger mt-2">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">
+                                {{ $message }}
+                            </div>
                         @enderror
                     </div>
 
@@ -56,6 +60,7 @@
                             type="checkbox"
                             name="remember"
                             id="remember_me"
+                            {{ old('remember') ? 'checked' : '' }}
                         >
                         <label class="form-check-label" for="remember_me">
                             Se souvenir de moi
@@ -77,7 +82,9 @@
 
                 <p class="text-center mt-3 mb-0">
                     Pas encore de compte ?
-                    <a href="{{ route('register') }}">S’inscrire</a>
+                    <a href="{{ route('register') }}" class="text-decoration-none">
+                        S’inscrire
+                    </a>
                 </p>
             </div>
         </div>

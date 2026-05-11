@@ -5,24 +5,28 @@ namespace App\Http\Requests\Auth;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Log;
 
 class LoginRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Nombre maximal de tentatives avant verrouillage.
      */
+    protected int $maxAttempts = 3;
+
+    /**
+     * Durée du verrouillage en secondes.
+     */
+    protected int $decaySeconds = 60;
+
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     */
     public function rules(): array
     {
         return [
@@ -31,15 +35,8 @@ class LoginRequest extends FormRequest
         ];
     }
 
-    /**
-     * Attempt to authenticate the request's credentials.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function authenticate(): void
     {
-        Log::info('AUTH FUNCTION CALLED');
-
         $this->ensureIsNotRateLimited();
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
@@ -50,55 +47,50 @@ class LoginRequest extends FormRequest
                 'user_agent' => $this->userAgent(),
             ]);
 
-            RateLimiter::hit($this->throttleKey());
+            // Incrémente le compteur et démarre / prolonge la fenêtre de verrouillage
+            $attempts = RateLimiter::hit($this->throttleKey(), $this->decaySeconds);
+
+            // Au moment exact où le seuil est atteint, on affiche 60 secondes fixes
+            if ($attempts >= $this->maxAttempts) {
+                event(new Lockout($this));
+
+                Log::alert('Account locked due to too many login attempts', [
+                    'email' => $this->input('email'),
+                    'ip' => $this->ip(),
+                    'user_agent' => $this->userAgent(),
+                    'seconds_remaining' => $this->decaySeconds,
+                ]);
+
+                throw ValidationException::withMessages([
+                    'email' => "Trop de tentatives de connexion. Réessayez dans {$this->decaySeconds} secondes.",
+                ]);
+            }
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => __('auth.failed'),
             ]);
         }
+
         RateLimiter::clear($this->throttleKey());
     }
 
-    /**
-     * Ensure the login request is not rate limited.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 2)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), $this->maxAttempts)) {
             return;
         }
 
-        event(new Lockout($this));
-        RateLimiter::clear($this->throttleKey());
-        RateLimiter::hit($this->throttleKey(), 60);
-
-        $seconds = 60;
-
-        Log::alert('Account locked due to too many login attempts', [
-                'email' => $this->input('email'),
-                'ip' => $this->ip(),
-                'user_agent' => $this->userAgent(),
-            ]);
+        $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle',[
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ])
+            'email' => "Trop de tentatives de connexion. Réessayez dans {$seconds} secondes.",
         ]);
     }
 
-
-
-
-    /**
-     * Get the rate limiting throttle key for the request.
-     */
     public function throttleKey(): string
     {
-        return strtolower($this->input('email')) . '|' . $this->ip();
+        return Str::transliterate(
+            $this->string('email')->lower().'|'.$this->ip()
+        );
     }
 }
-
